@@ -1,26 +1,103 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from 'react';
+import Action from './components/Action';
+import AddOption from './components/AddOption';
+import Header from './components/Header';
+import Options from './components/Options';
+import OptionModal from './components/OptionModal';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    options: [],
+    selectedOption: undefined
+  };
+
+  componentDidMount() {
+    try {
+      const json = localStorage.getItem('options');
+      const options = JSON.parse(json);
+      if (options) {
+        this.setState(() => ({ options }));
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.options.length !== this.state.options.length) {
+      const json = JSON.stringify(this.state.options);
+      localStorage.setItem('options', json);
+    }
+  }
+
+  handleDeleteOptions = () => {
+    this.setState(() => ({ options: [] }));
+  };
+
+  handlePick = () => {
+    const randomNum = Math.floor(Math.random() * this.state.options.length);
+    const option = this.state.options[randomNum];
+    this.setState(() => ({ selectedOption: option }));
+  };
+
+  handleAddOption = (option) => {
+    if (!option) {
+      return 'Enter valid value to add item';
+    }
+    else if (this.state.options.indexOf(option) > -1) {
+      return 'This option already exists';
+    }
+    this.setState((prevState) => {
+      let auxArray = [...prevState.options];
+      auxArray.push(option);
+      return {
+        options: auxArray
+      };
+    });
+  };
+
+  handleDeleteOption = (option) => {
+    this.setState((prevState) => {
+      let auxArray = [...prevState.options];
+      auxArray.splice(option, 1)
+      return {
+        options: auxArray
+      }
+    });
+  };
+
+  handleClearSelectedOption = () => {
+    this.setState(() => ({ selectedOption: undefined }));
+  };
+
+  render() {
+    const subtitle = 'Test title for subtitle';
+    return (
+      <div>
+        <Header
+          subtitle={subtitle}
+        />
+        <div className="container">
+          <Action
+            hasOptions={this.state.options.length > 0}
+            handlePick={this.handlePick}
+          />
+          <Options
+            options={this.state.options}
+            handleDeleteOptions={this.handleDeleteOptions}
+            handleDeleteOption={this.handleDeleteOption}
+          />
+          <AddOption
+            handleAddOption={this.handleAddOption}
+          />
+        </div>
+        <OptionModal
+          selectedOption={this.state.selectedOption}
+          handleClearSelectedOption={this.handleClearSelectedOption}
+        />
+      </div>
+    );
+  }
 }
 
 export default App;
