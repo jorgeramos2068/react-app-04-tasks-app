@@ -1,3 +1,7 @@
+# React App - Tasks App
+
+React application with a list of tasks to do.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
